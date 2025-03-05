@@ -78,7 +78,7 @@ def preprocess_repository(df: pd.DataFrame):
          'owner_id': df['owner_id'],
         })
 
-def preprocess_df(self, token, repos, features):
+def preprocess_df(token, repos, features):
     '''
     Applique le prétraitement aux repos
     '''
