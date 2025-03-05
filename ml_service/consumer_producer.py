@@ -1,14 +1,15 @@
-import requests
-import spacy
+import os
 import re
-import numpy as np
-import pickle as pk
-import pandas as pd
-
-from pymongo import MongoClient
 from datetime import datetime, timedelta
 from os import path
+
+import numpy as np
+import pandas as pd
+import requests
+import spacy
 from dotenv import load_dotenv
+from pymongo import MongoClient
+
 
 def load_info_repos():
     '''
@@ -236,7 +237,6 @@ def preproc_rep(df):
 
 if __name__ == "__main__":
     spacy.cli.download("en_core_web_lg")
-tokentoken
 
     # Load variabels d'environnement
     env_path = '../.env'
@@ -257,7 +257,7 @@ tokentoken
     # Prétraitement
     df_repos_with_readme_loaded = replace_content_url_by_readme(df_repos)
 
-    df_repos_preprocessed = preproc_rep(df_repos_processed)
+    df_repos_preprocessed = preproc_rep(df_repos_with_readme_loaded)
 
     # Enregistrement en bd
     df_to_db = df_repos_preprocessed.to_dict(orient="records")
