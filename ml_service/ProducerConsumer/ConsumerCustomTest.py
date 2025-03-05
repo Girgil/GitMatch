@@ -87,7 +87,7 @@ class ConsumerCustomTest():
                         repos = self._get_unique_repos_of_multiple_users()
 
                         # Prétraitement
-                        df = preprocess_df(token, df, repos, self._features)
+                        df = preprocess_df(token, repos, self._features)
                         
                         # On filtre les colonnes pour ne garder que celles nécessaires pour la bd
                         df_for_features = df.drop(columns=['owner_id'])
