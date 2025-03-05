@@ -1,8 +1,12 @@
+import requests
+import numpy as np
+import time
+
 def search_repos(url, headers, params):
     try:
         response = requests.get(url, headers=headers, params=params)
         check_rate_limit(response)
-        return response.json()["items"]
+        return response
     except:
         return []
 
@@ -43,9 +47,11 @@ def find_repos_with_stars(stars, token):
     
     url = f"{base_url}/search/repositories"
     ### On précise qu'on veut min_stars étoiles précisément ###
-    params = {"q": f"stars:{stars}", "sort": "stars", "order": "desc", "per_page": 100}
-
-    return search_repos(url, headers, params)
+    params = {"q": f"stars:{stars}", "sort": "stars", "order": "desc", "per_page": 5}
+    
+    response = search_repos(url, headers, params)
+    
+    return response.json()["items"]
 
 def get_owners(repos):
     owners_id = set()
@@ -84,7 +90,8 @@ def get_repos_from_commits(token, username, max_results=100000000):
     repos_set = {}
 
     while url and len(commits) < max_results:
-        new_commits = search_repos(url, headers, params)
+        response = search_repos(url, headers, params)
+        new_commits = response.json()["items"]
 
         commits.extend(new_commits)
 
@@ -110,7 +117,8 @@ def get_repos_from_pull_requests(token, username, max_results=100000):
     repos_set = {}
     
     while url and len(prs) < max_results:
-        new_prs = serach_repos(url, headers, params)
+        response = search_repos(url, headers, params)
+        new_prs = response.json()["items"]
         
         prs.extend(new_prs)
 
@@ -136,7 +144,9 @@ def get_repos_from_issues(token, username, max_results=100000):
     repos_set = {}
 
     while url and len(issues) < max_results:
-        new_issues = search_repos(url, headers, params)
+        response = search_repos(url, headers, params)
+        
+        new_issues = response.json()["items"]
         
         issues.extend(new_issues)
 
@@ -144,7 +154,7 @@ def get_repos_from_issues(token, username, max_results=100000):
             repo_url = issue.get('repository_url')
             if repo_url:
                 repo_info = get_repo_info(repo_url, headers)
-                return repo_info
+                
                 if repo_info:
                     repos_set[repo_info['id']] = repo_info
 

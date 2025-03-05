@@ -48,14 +48,20 @@ class ProducerCustomTest():
 
         self._users_contributed_repos = get_repos_for_users(token, users)
 
+        dict_to_send = []
+        
         # On filtre la plupart des informations du repo pour en transmettre seulement certaines
         for ii, user_contributed_repos in enumerate(self._users_contributed_repos):
             repos = list(user_contributed_repos.values())[0]
-            self._users_contributed_repos[ii] = {list(user_contributed_repos.keys())[0]: filter_features(repos, self._features)}
+            # on ne garde que les users qui ont au moins un repo contribué par contre on les stocke dans les users registered
+            if repos != []:
+                dict_to_send.append({list(user_contributed_repos.keys())[0]: filter_features(repos, self._features)})
+
+        self._users_contributed_repos = dict_to_send
     
     def produce(self, topic, config, token, min_stars, max_stars, file_to_save_users_id_registered):
         # Instance du producer
-        producer = Producer(config)
+        #producer = Producer(config)
 
         curr_stars = min_stars
 
@@ -64,7 +70,7 @@ class ProducerCustomTest():
             self._get_users_contributed_repos(token, curr_stars)
             
             curr_stars += 1
-
+            
             key = "0"
             for user_contributed_repos in self._user_contributed_repos:
                 user_contributed_repos_json = json.dumps(user_contributed_repos, ensure_ascii=True)

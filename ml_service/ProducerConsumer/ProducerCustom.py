@@ -59,8 +59,10 @@ class ProducerCustom():
             "order": "asc",
             "per_page": 100,
         }
+
+        response = search_repos(url, headers, params)
         
-        self._repos = search_repos(url, headers, params)
+        self._repos = response.json()["items"]
         
         if self._repos !=  []:
             new_repos, self._name_repos_registered = filter_repos(self._repos, self._name_repos_registered)

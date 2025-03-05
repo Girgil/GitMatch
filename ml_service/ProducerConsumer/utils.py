@@ -1,3 +1,5 @@
+import numpy as np
+
 def read_config(path_config="client.properties"):
     config = {}
     with open(path_config) as fh:
