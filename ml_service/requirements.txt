@@ -1,4 +1,0 @@
-pymongo
-confluent-kafka
-gensim
-requests
