@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+confluent_kafka
+mlflow
+apscheduler
+pandas
+numpy
