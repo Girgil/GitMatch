@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import sys
+import requests
 
 from mlflow.exceptions import MlflowException
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -184,7 +185,17 @@ def take_action_according_to_comparison_score(
         'staging'
     )
 
-#def update_api():
+def update_api():
+    """
+    Met à jour l'api: modèle en production / vecteurs utilisés pour l'inférence
+    """
+    base_url = "http://localhost:8000"
+    endpoint_for_maj_production = f'{base_url}/update'
+    try:
+        response = requests.post(endpoint_for_maj_production)
+        print(response.json())
+    except:
+        print('Api non disponible')
     
 
 def sequential_jobs(
@@ -226,6 +237,9 @@ def sequential_jobs(
     # Prise de décision
     take_action_according_to_comparison_score(nb_better_stg_scores, database_manager)
 
+    print('Mise à jour de l\'api')
+    update_api()
+    
     print('Fin du job')
         
 
