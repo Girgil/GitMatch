@@ -7,3 +7,8 @@ mlflow
 apscheduler
 pandas
 numpy
+confluent-kafka
+spacy
+DateTime
+APScheduler
+gensim
