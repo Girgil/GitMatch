@@ -81,5 +81,5 @@ Pour accéder au terminal mongo dans le conteneur : `docker exec -it mongo mongo
 ## Pour tester
 
 Nous mettons à disposition deux notebooks pour tester respectivement l'<b>api</b> et le <b>module de gestion des modèles</b>. Il est <b>nécessaire</b> de dockeriser la base MongoDB en suivant les instructions de la partie précédente.  
-Le premier est situé dans le répertoire `/api`. Il est <b>nécessaire</b> de lancer l'api en local avant de tester le notebook.  
-Le second est situé dans le répertoire `/model`.
+Le premier est disponible dans le répertoire `/api` sous le nom `notebook-test-api.ipynb`. Il est <b>nécessaire</b> de lancer l'api en local avant de tester le notebook.  
+Le second est situé dans le répertoire `/model` sous le nom `notebook-test-gestion-modele.ipynb`.
