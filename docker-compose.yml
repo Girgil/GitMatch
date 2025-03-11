@@ -2,23 +2,15 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
-
-  api:
     build:
       context: .
-      dockerfile: api/Dockerfile.api  # Chemin vers le Dockerfile
-    container_name: api
+      dockerfile: mongo/Dockerfile
     ports:
-      - "8000:8000"
-    depends_on:
-      - mongo
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: github
     volumes:
-      - ./artifacts:/app/artifacts
+      - ./mongo/data:/data/db
 
 volumes:
   mongo-data:
-

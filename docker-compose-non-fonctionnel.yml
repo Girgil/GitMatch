@@ -1,0 +1,47 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    build:
+      context: .
+      dockerfile: mongo/Dockerfile
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: github
+    volumes:
+      - ./mongo/data:/data/db
+
+  mlflow-server:
+    build:
+      context: .
+      dockerfile: artifacts/Dockerfile
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./artifacts/mlruns:/app/artifacts/mlruns
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - mlflow-server
+      
+  model:
+    build:
+      context: .
+      dockerfile: model/Dockerfile
+    container_name: model
+    depends_on:
+      - mongo
+      - mlflow-server
+
+
+volumes:
+  mongo-data:
