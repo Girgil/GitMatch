@@ -21,14 +21,14 @@ from model.MLFlowManager import MLFlowManager
 from database.DatabaseManager import DatabaseManager
 
 def check_if_model_exists(model_uri):
+    """
+    Vérification de l'existence du modèle
+    """
     try:
         model = mlflow.pyfunc.load_model(model_uri)
         return True
     except MlflowException as e:
         return False
-
-# Vérifier si un modèle est en staging/production
-# --> apprendre si ce n'est pas le cas un modèle pour chacun
 
 def load_model(
     staging,
@@ -37,6 +37,12 @@ def load_model(
     mlflow_model_readme_uri,
     mlflow_model_others_uri
 ):
+    """
+    Chargement du modèle
+    Apprentissage du modèle s'il n'existe pas
+
+    Retourne le modèle
+    """
     model = None
     
     train_df, test_df = database_manager.get_train_test_split_features()
@@ -68,6 +74,9 @@ def ensure_every_repo_is_vectorised(
     staging_model,
     production_model
 ):
+    """
+    Vectorisation des nouveaux répertoires/répertoires partiellement vectorisés
+    """
     # Inférence des nouvelles données
     # Récupération des repos qui n'ont pas encore toutes leurs représentations vectorielles
     df_repos_features_to_predict = database_manager.get_repos_without_all_vectors()

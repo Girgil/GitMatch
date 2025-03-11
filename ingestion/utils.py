@@ -1,6 +1,9 @@
 import numpy as np
 
 def read_config(path_config="client.properties"):
+    """
+    Lecture de la configuration du cluster confluent-kafka
+    """
     config = {}
     with open(path_config) as fh:
         for line in fh:
@@ -11,6 +14,9 @@ def read_config(path_config="client.properties"):
     return config
 
 def save_to_np_array(file_to_save, data_to_save):
+    """
+    Enregistrement d'une liste au format npy
+    """
     np_data = np.array(data_to_save)
     
     with open(file_to_save, 'wb') as file:

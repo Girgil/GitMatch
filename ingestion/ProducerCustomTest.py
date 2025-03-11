@@ -7,9 +7,6 @@ from requests_utils import find_repos_with_stars, get_owners, get_repos_for_user
 class ProducerCustomTest():
 
     def __init__(self, id_users_registered, features=['full_name', 'id', 'description', 'language', 'topics', 'contents_url', 'html_url', 'default_branch']):
-        '''
-        Liste de repos vide
-        '''
         # Liste de liste
         # Les sous listes contiennent les repos pour lequel un user a contribué
         self._users_contributed_repos = list()
@@ -20,10 +17,10 @@ class ProducerCustomTest():
         self._users_contributed_repos = list()
 
     def _filter_users(self, users):
-        '''
-        Trie les users dont on a retenu les repos
-        Si on l'a déjà enregistré on ne le retient pas
-        '''
+        """
+        Trie les utilisateurs dont on a retenu les répertoires
+        Si on a déjà enregistré l'utilisateur on ne le considère plus
+        """
         users_never_registered = []
         
         for (user_login, user_id) in users:
@@ -34,9 +31,9 @@ class ProducerCustomTest():
         return users_never_registered
         
     def _get_users_contributed_repos(self, token, stars):
-        '''
-        Récupère les repos d'un set de users
-        '''
+        """
+        Récupère les répertoires d'un ensemble d'utilisateurs
+        """
         # Récupère des repos en fonction d'un nombre précis de stars
         original_repos = find_repos_with_stars(stars=stars, token=token)
 

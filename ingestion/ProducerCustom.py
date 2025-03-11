@@ -9,9 +9,6 @@ from ingestion.requests_utils import search_repos, filter_repos, filter_features
 class ProducerCustom():
 
     def __init__(self, curr_date, name_repos_registered, features = ['full_name', 'id', 'description', 'language', 'topics', 'contents_url', 'html_url', 'default_branch']):
-        '''
-        Liste de repos vide
-        '''
         self._repos = list()
         self._curr_date = curr_date
         self._name_repos_registered = name_repos_registered
@@ -21,9 +18,9 @@ class ProducerCustom():
         self._repos = list()
 
     def _update_date(self):
-        '''
-        Méthode qui incrémente la date courante
-        '''
+        """
+        Incrémentation de la date courante
+        """
     
         # Format de la date
         format_str = "%Y-%m-%d"
@@ -39,9 +36,9 @@ class ProducerCustom():
         print(f"Nouvelle date : {self._curr_date}")
 
     def _get_repos(self, token, criteria):
-        '''
-        Méthode qui requête sur l'api github et qui récupère des repos créés selon une journée
-        '''
+        """
+        Récupération d'une liste de répertoires
+        """
         headers = {"Authorization": f"token {token}"}
         base_url = "https://api.github.com"
     
@@ -75,6 +72,9 @@ class ProducerCustom():
             self._repos = filter_features(new_repos, self._features)
 
     def _wait_next_day(self):
+        """
+        Gestion de l'attente dans le cas où on augmente périodiquement notre quantité de données
+        """
         now = datetime.now()
         
         next_day_9am = (now + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
@@ -84,9 +84,11 @@ class ProducerCustom():
         time.sleep(time_to_sleep)
     
     def produce(self, topic, config, token, max_date, file_to_save_repos_name, criteria):
-        '''
-        criteria: created ou pushed
-        '''
+        """
+        Criteria définit le mode de récupération:
+        - 'created': on récupère les répertoires créés chaque jour entre deux dates sans faire de pauses
+        - 'pushed': on récupère chaque jour une certaine quantité de répertoires mis à jour
+        """
         # Instance du producer
         producer = Producer(config)
         

@@ -22,6 +22,7 @@ os.environ["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
 
 # cas où on dockerise le serveur mlflow
 #os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5000"
+
 production_mlflow_model_readme_uri = 'models:/doc2vec_readme@production'
 production_mlflow_model_others_uri = 'models:/doc2vec_others@production'
 
@@ -63,6 +64,9 @@ app = FastAPI()
 
 @app.get("/recommend/{owner_name}/{repo_name}")
 def recommend(owner_name: str, repo_name: str, k: int):
+    """
+    Route pour recommandations des répertoires github en retournant une liste d'url
+    """
     name = f'{owner_name}/{repo_name}'
     # Requêter pour récupérer la réponse json
     repo_json = get_repo(token=token, full_name=name)
@@ -97,6 +101,11 @@ def recommend(owner_name: str, repo_name: str, k: int):
 
 @app.post("/update")
 def update_api():
+    """
+    Route pour mettre à jour l'api pendant sa mise en service
+    Rechargement du modèle en production
+    Mise à jour de la représentation des répertoires
+    """
     production_model = Doc2VecModel('production', production_mlflow_model_readme_uri, production_mlflow_model_others_uri)
     df_vectors = database_manager.get_df_vectors()
     return "Mise à jour réussie"

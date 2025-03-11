@@ -15,15 +15,21 @@ class Evaluation():
         self._production_model = production_model
 
     def _get_k_repos_most_similar(self, test_chosen_vectors, staging_vectors, production_vectors, k):
-        '''
+        """
+        Méthode qui récupère:
+        - pour chaque utilisateur de test
+        - pour chaque représentation (readme/others)
+        - pour chaque modèle (production/staging)
+        ---> les représentations vectorielles les plus similaires
+        
         test_chosen_vectors: liste qui contient pour chaque utilisateur de test un dict à 4 champs avec les 4 vecteurs
 
-        staging_vectors: df qui contient pour tous les repos de train leurs représentations vectorielles pour le staging et leur id
+        staging_vectors: df qui contient pour tous les repos de train
+        leurs représentations vectorielles pour le staging et leur id
 
-        production_vectors: df qui contient pour tous les repos de train leurs représentations vectorielles pour la production et leur id
-        
-        Méthode qui récupère pour chaque utilisateur de test, pour chaque représentation (readme/others) et pour chaque modèle (production/staging) les représentations vectorielles les plus similaires
-        '''
+        production_vectors: df qui contient pour tous les repos de train
+        leurs représentations vectorielles pour la production et leur id
+        """
         staging_k_repos_most_similar_with_readme = []
         staging_k_repos_most_similar_with_others = []
         production_k_repos_most_similar_with_readme = []
@@ -53,15 +59,7 @@ class Evaluation():
         return staging_k_repos_most_similar_with_readme, staging_k_repos_most_similar_with_others, production_k_repos_most_similar_with_readme, production_k_repos_most_similar_with_others
     
     def _evaluate_1(self, test_remaining_vectors, k_vectors_most_similar, random_chosen_train_vector):
-        '''
-        test_remaining_vectors: représentations vectorielles des répertoires mis de côté pour l'utilisateur de test
-        --> liste
-        
-        k_vectors_most_similar: représentations vectorielles des répertoires les plus similaraires par rapport à un vecteur de l'utilisateur de test choisi aléatoirement
-        --> liste
-        
-        random_chosen_train_vector: représentation vectorielle du répertoire de train choisi aléatoirement
-        
+        """
         Calcule les scores d'évaluation de la première méthode d'évaluation
         La méthode consiste à récupérer les k repos les plus similaires avec le répertoire de l'utilisateur de test
         Pour chaque repo parmi les k, on calcule sa similarité moyenne avec les repos mis de côté de l'utilisateur de test
@@ -69,7 +67,17 @@ class Evaluation():
         On a tiré aléatoirement un repo d'entraînement
         On calcule sa similarité moyenne avec les repos mis de côté, on obtient un score s2
         On retourne (s1 - s2)
-        '''
+
+        L'objectif est d'évaluer la pertinence de nos prédictions par rapport à l'aléatoire 
+        
+        test_remaining_vectors: représentations vectorielles des répertoires mis de côté pour l'utilisateur de test
+        --> liste
+        
+        k_vectors_most_similar: représentations vectorielles des répertoires les plus similaraires par rapport à un vecteur de l'utilisateur de test choisi aléatoirement
+        --> liste
+        
+        random_chosen_train_vector: représentation vectorielle du répertoire de train choisi aléatoirement
+        """
 
         # Calcul de la moyenne des similarités moyennes de chacun des k repos avec les repos de test
         mean_similarities = []
@@ -88,32 +96,26 @@ class Evaluation():
         return evaluation_score_1
 
     def _evaluate_1_for_all_test_users(self, users_test_remaining_vectors, users_k_vectors_most_similar, users_random_chosen_train_vector):
-        '''
+        """
+        Calcul le score moyen d'un modèle (readme ou others, staging ou prod) pour l'ensemble des utilisateurs de test
+        La méthodologie d'évaluation est expliquéé dans _evaluate_1
+
+        On obtient un score moyen mean_similarity qu'on retourne
+        
         users_test_remaining_vectors: liste qui contient pour chaque utilisateur de test les représentations vectorielles des répertoires qui ont été mis de côté
         
         users_k_vectors_most_similar: liste qui contient pour chaque utilisateur de test les représentations vectorielles des répertoires de train les plus similaires au répertoire de test qui a été choisi aléatoirement
         
         users_random_chosen_train_vector: liste qui contient pour chaque utilisateur de test la représentation vectorielle d'un répertoire de train qui va nous permettre de nous comparer à la prédiction aléatoire
         --> liste de dict
-
-        Calcul le score moyen d'un modèle (readme ou others, staging ou prod) pour l'ensemble des utilisateurs de test
-        La méthodologie d'évaluation est expliquéé dans _evaluate_1
-
-        On obtient un score moyen mean_similarity qu'on retourne
-        '''
+        """
 
         mean_similarity = np.mean([self._evaluate_1(test_remaining_vectors, users_k_vectors_most_similar[ii], users_random_chosen_train_vector[ii]) for ii, test_remaining_vectors in enumerate(users_test_remaining_vectors)])
 
         return mean_similarity
 
     def _evaluate_2(self, test_remaining_vectors, three_vectors_among_most_similar):
-        '''
-        test_remaining_vectors: représentations vectorielles des répertoires d'un utilisateur de test mis de côté
-        --> liste
-
-        three_vectors_among_most_similar: représentations vectorielles des trois répertoires parmi les k plus similaires au répertoire choisi aléatoirement pour un utilisateur de test
-        --> list
-        
+        """
         Calcule les scores d'évaluation de la seconde méthode d'évaluation
 
         Prend en entrée trois représentations vectorielles de répertoires parmi les k plus similaires au répertoire choisi aléatoirement pour un utilisateur de test
@@ -124,7 +126,13 @@ class Evaluation():
 
         Le score d'évaluation correspond à la somme des différences entre les scores des répertoires : (s1 - s2) + (s2 - s3)
         L'objectif est d'évaluer la qualité du tri
-        '''
+        
+        test_remaining_vectors: représentations vectorielles des répertoires d'un utilisateur de test mis de côté
+        --> liste
+
+        three_vectors_among_most_similar: représentations vectorielles des trois répertoires parmi les k plus similaires au répertoire choisi aléatoirement pour un utilisateur de test
+        --> list
+        """
         
         mean_similarities = []
 
@@ -137,23 +145,27 @@ class Evaluation():
         return evaluation_score_2
 
     def _evaluate_2_for_all_test_users(self, users_test_remaining_vectors, users_three_vectors_among_most_similar):
-        '''
-        users_test_remaining_vectors: liste qui contient pour chaque utilisateur de test les représentations vectorielles des répertoires qui ont été mis de côté
-        
-        users_three_vectors_among_most_similar: liste qui contient pour chaque utilisateur de test les représentations vectorielles de trois répertoires de train parmi les k plus similaires au répertoire de test qui a été choisi aléatoirement selon l'indice 0, k//2 et k-1
-
+        """
         Calcul le score moyen d'un modèle (readme ou others, staging ou prod) pour l'ensemble des utilisateurs de test
         La méthodologie d'évaluation est expliquéé dans _evaluate_2
 
         On obtient un score moyen mean_similarity qu'on retourne
-        '''
+        
+        users_test_remaining_vectors: liste qui contient pour chaque utilisateur de test les représentations vectorielles des répertoires qui ont été mis de côté
+        
+        users_three_vectors_among_most_similar: liste qui contient pour chaque utilisateur de test les représentations vectorielles de trois répertoires de train parmi les k plus similaires au répertoire de test qui a été choisi aléatoirement selon l'indice 0, k//2 et k-1
+        """
 
         mean_similarity = np.mean([self._evaluate_2(test_remaining_vectors, users_three_vectors_among_most_similar[ii]) for ii, test_remaining_vectors in enumerate(users_test_remaining_vectors)])
 
         return mean_similarity
 
     def evaluate(self, staging_vectors, production_vectors, test_chosen_vectors, test_remaining_vectors, k):
-        '''
+        """
+        Méthode qui calcule pour les modèles en staging et en production des scores d'évaluation à partir des 2 méthodes
+        Elle retourne 2 listes staging_scores et production_scores
+        Ces 2 listes sont formatées comme il suit : [score1 pour readme, score1 pour others, score2 pour readme, score2 pour others]
+        
         staging_vectors: df contenant 3 champs 'id', 'staging_readme_vector', 'staging_others_vector' pour les données de train
 
         production_vectors: df contenant 3 champs 'id', 'production_readme_vector', 'production_others_vector' pour les données de train
@@ -165,11 +177,7 @@ class Evaluation():
         --> liste de df avec les 4 champs au dessus
 
         k: nombre de repos similaires qu'on considère
-        
-        Méthode qui calcule pour les modèles en staging et en production des scores d'évaluation à partir des 2 méthodes
-        Elle retourne 2 listes staging_scores et production_scores
-        Ces 2 listes sont formatées comme il suit : [score1 pour readme, score1 pour others, score2 pour readme, score2 pour others]
-        '''
+        """
 
         number_of_test_users = len(test_chosen_vectors)
         

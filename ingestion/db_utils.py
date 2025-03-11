@@ -1,6 +1,10 @@
 from pymongo.collection import Collection
 
 def update_users(owners_to_repo, collection: Collection, partition):
+    """
+    Ancienne méthode pour ajouter les utilisateurs à la collection
+    Il faudrait désormais utiiser une instance DatabaseManager    
+    """
     for owner_id, repo_ids in owners_to_repo.items():
         criteria = {'user_id': owner_id}
 

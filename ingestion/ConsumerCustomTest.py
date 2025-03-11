@@ -9,20 +9,20 @@ from db_utils import update_users
 class ConsumerCustomTest():
 
     def __init__(self, rep_fullname_already_registered, features=['full_name', 'id', 'description', 'language', 'topics', 'contents_url', 'html_url', 'default_branch', 'owner_id']):
-        '''
-        Init une liste à vide
-        '''
         self._users_contributed_repos = list()
         self._rep_fullname_already_registered = rep_fullname_already_registered
         self._features = features
     
     def _clear(self):
-        '''
+        """
         Vide la liste
-        '''
+        """
         self._users_contributed_repos = list()
 
     def _get_unique_repos_of_multiple_users(self):
+        """
+        Trie pour ne pas enregistrer plusieurs fois le même répertoire en collection
+        """
         res = []
 
         for user in self._users_contributed_repos:
@@ -36,10 +36,10 @@ class ConsumerCustomTest():
         return res
 
     def _get_repos_id_foreach_user_id(self):
-        '''
-        retourne un dict avec user_id: [liste de rep_id]
-        la variable retournée est adaptée à un envoie en bd
-        '''
+        """"
+        Récupère pour chaque utilisateur la liste des identifiants des répertoires auxquels
+        il a contribué
+        """
         res = {}
         
         for user in self._users_contributed_repos:

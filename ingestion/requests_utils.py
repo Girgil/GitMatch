@@ -3,6 +3,9 @@ import numpy as np
 import time
 
 def search_repos(url, headers, params):
+    """
+    Applique une recherche
+    """
     try:
         response = requests.get(url, headers=headers, params=params)
         check_rate_limit(response)
@@ -11,14 +14,9 @@ def search_repos(url, headers, params):
         return []
 
 def filter_repos(repos, name_repos_registered):
-    '''
+    """
     Méthode qui fitre les repos déjà enregistrés à partir de leur nom
-    '''
-
-    '''
-    On transforme name_repos_saved en set
-    Ça facilite la recherche des répos déjà présents dans ceux enregstrés
-    '''
+    """
     set_name_repos_registered = set(name_repos_registered)
     
     repos_to_register = []
@@ -36,12 +34,14 @@ def filter_repos(repos, name_repos_registered):
     return repos_to_register, name_repos_registered
 
 def filter_features(repos, features):
-    '''
-    On récupère toujours l'id de l'owner
-    '''
+    """
+    Filtrage des répertoires au format json pour ne garder que certaines features
+    """
     return [{feature: repo[feature] for feature in features} | {'owner_id': repo['owner']['id']} for repo in repos]
 
 def find_repos_with_stars(stars, token):
+    """
+    """
     headers = {"Authorization": f"token {token}"}
     base_url = "https://api.github.com"
     
@@ -54,6 +54,9 @@ def find_repos_with_stars(stars, token):
     return response.json()["items"]
 
 def get_owners(repos):
+    """
+    Récupération du propriétaire des répertoires
+    """
     owners_id = set()
 
     for repo in repos:
@@ -62,6 +65,10 @@ def get_owners(repos):
     return list(owners_id)
 
 def get_repos_for_users(token, users):
+    """
+    Récupère tous les répertoires auxquels une liste d'utilisateurs a contribué
+    Contributions: Commits, Pull-requests, Issues
+    """
     res = []
 
     for num_user, (username, user_id) in enumerate(users):
@@ -80,6 +87,9 @@ def get_repos_for_users(token, users):
     return res
 
 def get_repos_from_commits(token, username, max_results=100000000):
+    """
+    Récupère les répertoires depuis les commits d'un utilisateur
+    """
     base_url = "https://api.github.com"
     headers = {"Authorization": f"token {token}"}
     url = f"{base_url}/search/commits"
@@ -107,6 +117,9 @@ def get_repos_from_commits(token, username, max_results=100000000):
     return list(repos_set.values())
 
 def get_repos_from_pull_requests(token, username, max_results=100000):
+    """
+    Récupère les répertoires depuis les pull requests d'un utilisateur
+    """
     base_url = "https://api.github.com"
     headers = {"Authorization": f"token {token}"}
     url = f"{base_url}/search/issues"
@@ -134,6 +147,9 @@ def get_repos_from_pull_requests(token, username, max_results=100000):
     return list(repos_set.values())
 
 def get_repos_from_issues(token, username, max_results=100000):
+    """
+    Récupère les répertoires depuis les issues d'un utilisateur
+    """
     base_url = "https://api.github.com"
     headers = {"Authorization": f"token {token}"}
     url = f"{base_url}/search/issues"
@@ -163,6 +179,9 @@ def get_repos_from_issues(token, username, max_results=100000):
     return list(repos_set.values())
 
 def get_repo_info(repo_url, headers):
+    """
+    Récupère les informations d'un répertoire à partir de son url
+    """
     response = requests.get(repo_url, headers=headers)
     check_rate_limit(response)
     
@@ -173,9 +192,10 @@ def get_repo_info(repo_url, headers):
         return None
 
 def check_rate_limit(response):
-    '''
-    Vérifie les limites de taux et attend si nécessaire.
-    '''
+    """
+    Vérifie les limites de taux du token d'accès
+    Même en attente si la limite est atteinte
+    """
     if 'X-RateLimit-Remaining' in response.headers:
         remaining = int(response.headers['X-RateLimit-Remaining'])
         print(f"Requêtes restantes (global): {remaining}")
@@ -188,7 +208,9 @@ def check_rate_limit(response):
             time.sleep(sleep_time)
 
 def get_unique_repos(user_id, repos_from_commits, repos_from_prs, repos_from_issues):
-
+    """
+    Pour un utilisateur filtre les doublons des répertoires
+    """
     repos_set = {}
 
     for repo_from_commit in repos_from_commits:
@@ -203,6 +225,9 @@ def get_unique_repos(user_id, repos_from_commits, repos_from_prs, repos_from_iss
     return {user_id: list(repos_set.values())}
 
 def get_next_page_url(headers):
+    """
+    Permet de requêter sur la page suivante
+    """
     if 'Link' in headers:
         links = headers['Link'].split(', ')
         for link in links:
@@ -211,6 +236,9 @@ def get_next_page_url(headers):
     return None
 
 def get_repo(token, full_name):
+    """
+    Récupération du répertoire en inférence
+    """
     headers = {"Authorization": f"token {token}"}
     base_url = "https://api.github.com"
     

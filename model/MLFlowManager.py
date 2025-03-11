@@ -21,6 +21,9 @@ class MLFlowManager:
         self.archive_alias = archive_alias
 
     def register_model(self, model, model_name, artifact_path, stage="staging"):
+        """
+        Enregistrement du nouveau modèle
+        """
         with mlflow.start_run() as run:
             # Enregistrement du modèle
             model_path = f"{artifact_path}.pkl"

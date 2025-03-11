@@ -2,3 +2,11 @@
 /autres
 /kafka
 .idea/
+/artifacts/*.pkl
+/artifacts/mlruns
+/mongo/data
+*/.ipynb_checkpoints/
+.ipynb_checkpoints/
+model/*-propre-*
+model/*-crash-*
+*.ipynb

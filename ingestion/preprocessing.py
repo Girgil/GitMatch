@@ -6,7 +6,9 @@ import re
 from ingestion.requests_utils import check_rate_limit
 
 def load_readme(content_path, token):
-    
+    """
+    Charge le readme d'un répertoire en faisant plusieurs requêtes
+    """
     url = content_path
 
     headers = {"Authorization": f"token {token}"}
@@ -28,12 +30,18 @@ def load_readme(content_path, token):
         return ""
 
 def replace_content_url_by_readme(df: pd.DataFrame, token):
+    """
+    Remplace le champ 'contents_url' par le readme
+    """
     df2 = df[['contents_url', 'default_branch']]
     df2['contents_url'] = df2.apply(lambda x: load_readme(x['contents_url'][:-7] + f'README.md?ref={x["default_branch"]}', token), axis=1)
     df['contents_url'] = df2['contents_url']
     return df.rename(columns={'contents_url': 'readme'})
 
 def preprocess_repository(df: pd.DataFrame):
+    """
+    Prétraite les features pour les transformer en liste de tokens enregistrées en base de données
+    """
     nlp = spacy.load("en_core_web_lg")
 
     readme_preproc = []
@@ -81,9 +89,9 @@ def preprocess_repository(df: pd.DataFrame):
         })
 
 def preprocess_df(token, repos, features):
-    '''
-    Applique le prétraitement aux repos
-    '''
+    """
+    Crée un DataFrame et retourne sa version prétraitée
+    """
 
     df = pd.DataFrame(repos, columns=features)
     

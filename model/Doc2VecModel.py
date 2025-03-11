@@ -18,23 +18,26 @@ class Doc2VecModel():
         self._staging = staging
 
     def predict(self, repo):
-        '''
-        Prend en entrée un repo représenté par un dict à 3 champs: 'id', 'readme_preproc', 'others_preproc'
-
+        """
+        Infère les features d'un répertoire
+        
+        Prend en entrée un répertoire représenté par un dict à 3 champs: 'id', 'readme_preproc', 'others_preproc'
         Retourne un dict formaté selon 3 champs: 'id', '{staging}_readme_vector', '{staging}_others_vector'
-        '''
+        """
         readme_vector = self._doc2vec_readme.predict(repo['readme_preproc'])
         others_vector = self._doc2vec_others.predict(repo['others_preproc'])
 
         return {'id': repo['id'], f'{self._staging}_readme_vector': readme_vector, f'{self._staging}_others_vector': others_vector}
 
     def _get_top_k(self, k, readme_vector, others_vector, df_vectors):
-        '''
+        """"
+        Cherche les k répertoires les plus similaires à deux représentations vectorielles d'un répertoire
+        
         k nombre de répertoires qu'on retourne 'id', '', 'readme_similarity_value'/'others_similarity_value'
         readme_vector: représentation avec le readme du repo pour lequel on cherche les repos les plus similaires
         others_vector: représentation sans le readme du repo pour lequel on cherche les repos les plus similaires
         df_vectors est un dataframe avec trois champs 'id', '{staging}_readme_vector', '{staging}_others_vector'
-        '''
+        """
         staging = self._staging
         
         #datas['readme_similarity_value'] = datas['readme_vector'].apply(lambda vec: compute_similarity_cosinus(vec, repo_readme_vector) if len(vec) > 0 else 0)
@@ -57,13 +60,13 @@ class Doc2VecModel():
         return k_repos_most_similar_with_readme, k_repos_most_similar_with_others
 
     def get_top_k_for_evaluation(self, k, repo, df_vectors):
-        '''
+        """
         k          : nombre de repos à retourner
         repo       : répertoire dont on passe les représentations en entrée '{staging}_readme_vector' et '{staging}_others_vector'
         df_vectors : df contenant les répertoires vectorisés avec trois champs 'id', '{staging}_readme_vector', '{staging}_others_vector' --> répertoires de train
 
-        retourne ???
-        '''
+        retourne deux liste de vecteurs: une pour chaque modèle
+        """
         readme_vector = repo[f'{self._staging}_readme_vector']
         others_vector = repo[f'{self._staging}_others_vector']
 
@@ -75,13 +78,13 @@ class Doc2VecModel():
         return k_repos_most_similar_with_readme, k_repos_most_similar_with_others
 
     def get_top_k_for_prediction(self, k, repo, df_vectors):
-        '''
+        """
         k          : nombre de repos à retourner
         repo       : répertoire dont on passe les features en entrée 'readme_preproc' et 'others_preproc'
         df_vectors : df contenant les répertoires vectorisés avec trois champs 'id', '{staging}_readme_vector', '{staging}_others_vector' --> tous les répertoires (dans le cadre de l'inférence on utilise toute la base)
 
-        retourne ???
-        '''
+        retourne deux dataframes, un pour chaque modèle
+        """
         readme_vector = self._doc2vec_readme.predict(repo['readme_preproc'])
         others_vector = self._doc2vec_others.predict(repo['others_preproc'])
 

@@ -8,21 +8,19 @@ from db_utils import update_users
 class ConsumerCustom():
 
     def __init__(self, features=['full_name', 'id', 'description', 'language', 'topics', 'contents_url', 'html_url', 'default_branch', 'owner_id']):
-        '''
-        '''
         self._repos = list()
         self._features = features
     
     def _clear(self):
-        '''
+        """
         Vide la liste
-        '''
+        """
         self._repos = list()
 
     def consume(self, token, feature_collection: Collection, user_collection: Collection, config, topic):
-        '''
+        """
         Boucle de récupération 
-        '''
+        """
         config["group.id"] = "python-group-1"
         config["auto.offset.reset"] = "earliest"
         

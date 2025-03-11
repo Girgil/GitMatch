@@ -4,15 +4,21 @@ import random
 class DatabaseManager():
 
     def __init__(self, database):
-        '''
-        database: database mongo
-        '''
+        """
+        Initialise un objet DatabaseManager qui sert d'interface
+        entre une database mongo et des programmes tiers
+        """
         self._database = database
 
     def insert_repos_features(self, df_to_insert):
-        '''
-        df_to_insert: dataframe à 4 colonnes 'id', 'readme_preproc', 'others_preproc', 'url'
-        '''
+        """
+        Insère des répertoires dans la collection des features
+        Prend en entrée un pd.DataFrame à 4 colonnes:
+            - id: identifiant du répertoire
+            - readme_preproc: tokens du répertoire
+            - others_preproc: tokens des autres features
+            - html_url: url du répertoire
+        """
 
         features_collection = self._database['repertoire_features']
 
@@ -21,13 +27,12 @@ class DatabaseManager():
         features_collection.insert_many(oriented_df_to_insert)
 
     def insert_users(self, users_contributed_repos, partition):
-        '''
-        users_contributed_repos : dict qui associe un user_id aux repos possédés/contribués
-        
-        partition : test ou train, indique pour quelle partition l'utilisateur est utilisé
-        
-        Met à jour en bd la liste des répertoires auxquels un utilisateur a contribué
-        '''
+        """
+        Insère des utilisateurs dans la collection des users
+        Users_contributed_repos est un dict qui associe l'identifiant d'un utilisateur
+        aux identifiants des répertoires auxquels il a contribué
+        Partition indique si les utilisateurs seront utilisés en 'train' ou en 'test'
+        """
         
         users_collection = self._database['users']
 
@@ -44,10 +49,10 @@ class DatabaseManager():
             )
 
     def insert_repos_vectors_for_one_stage(self, df_to_insert, staging):
-        '''
-        df_to_insert: df avec 3 champs id "{staging}_readme_vector", "{staging}_others_vector"
-        Insère des vecteurs pour un stage "staging"/"production"
-        '''
+        """
+        Insère les représentations vectorielles de répertoires pour un type de modèle
+        'staging' ou 'production'
+        """
 
         vectors_collection = self._database['repertoire_vectors']
 
@@ -71,10 +76,10 @@ class DatabaseManager():
             )
 
     def insert_repos_vector_for_both_stages(self, df_to_insert):
-        '''
-        df_to_insert: df avec 5 champs id et les 4 vecteurs
-        Insère des vecteurs pour les deux stages "staging" et "production"
-        '''
+        """
+        Insère les représentations vectorielles de répertoires pour les deux types
+        de modèle
+        """
 
         vectors_collection = self._database['repertoire_vectors']
 
@@ -102,9 +107,9 @@ class DatabaseManager():
             )
 
     def get_url_list_from_id_list(self, ids_list):
-        '''
-        Retourne l'url des repos dont les id sont dans la liste
-        '''
+        """"
+        Retourne l'url des répertoires dont les identifiants sont dans la liste
+        """
         features_collection = self._database['repertoire_features']
 
         urls_list = list(
@@ -122,9 +127,10 @@ class DatabaseManager():
         return urls_list
 
     def get_train_test_split_features(self):
-        '''
-        Retourne deux dataframes un pour le train / un pour le test avec les features (readme_preproc/others_preproc) et l'id
-        '''
+        """
+        Retourne deux pd.DataFrame: un pour le train; un pour le test
+        Composés de 3 champs: 'id', 'readme_preproc', 'others_preproc'
+        """
         features_collection = self._database['repertoire_features']
         users_collection = self._database['users']
 
@@ -190,10 +196,10 @@ class DatabaseManager():
 
 
     def get_df_vectors(self):
-        '''
-        M2
-        retourne tous les vecteurs sous forme d'un df
-        '''
+        """
+        Récupère pour chaque répertoire l'ensemble de ses représentations vectorielles
+        Retourne un pd.DataFrame
+        """
 
         vectors_collection = self._database['repertoire_vectors']
 
@@ -227,10 +233,10 @@ class DatabaseManager():
         return df_vectors
 
     def get_df_split_staging_production(self, df):
-        '''
-        M1
-        split un df en deux pour séparer staging et production
-        '''
+        """
+        Sépare un DataFrame en deux selon l'origine de la représentation vectorielle:
+        'staging' ou 'production'
+        """
 
         stg_cols = [
             'id',
@@ -250,10 +256,9 @@ class DatabaseManager():
         return staging_df, production_df
 
     def get_df_split_train_test_vectors(self):
-        '''
-        M3
-        retourne deux df avec les vecteurs de train et de test séparés
-        '''
+        """
+        Retourne deux pd.DataFrame avec les vecteurs de train et de test séparés
+        """
 
         users_collection = self._database['users']
 
@@ -282,12 +287,11 @@ class DatabaseManager():
         return train_df, test_df
 
     def get_users_test_vectors_splitted(self):
-        '''
-        M4
-        retourne deux listes
-        une première avec une liste de dict qui contient chaque repo tiré aléatoirement pour les users de test
-        une seconde avec une liste de df qui correspond aux répertoires restants des utilisateurs de test
-        '''
+        """
+        Prépare les données des utilisateurs de test pour l'évaluation
+        Tire aléatoirement pour chaque utilisateur de test un répertoire à mettre de côté
+        Il servira pour récupérer les k répertoires les plus similaires afin d'évaluer les modèles
+        """
 
         users_collection = self._database['users']
         
@@ -343,9 +347,9 @@ class DatabaseManager():
 
     
     def upgrade_staging_vectors(self):
-        '''
-        Transfère les vecteurs de staging en vecteurs de production
-        '''
+        """
+        Transfère les représentations vectorielles de staging en production
+        """
         vectors_collection = self._database['repertoire_vectors']
         
         # Récupération du dataframe de s
@@ -368,9 +372,10 @@ class DatabaseManager():
             )
 
     def get_repos_without_all_vectors(self):
-        '''
-        Retourne les répertoires qui n'ont pas toutes leurs représentations vectorielles
-        '''
+        """
+        Retourne les répertoires qui n'ont pas leurs quatres représentations vectorielles enregistrées
+        en collection
+        """
         features_collection = self._database['repertoire_features']
         vectors_collection = self._database['repertoire_vectors']
         
