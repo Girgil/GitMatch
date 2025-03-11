@@ -1,6 +1,13 @@
 import mlflow
-from src.model.model_utils import compute_similarity_cosinus
-from src.model.Doc2VecWraper import Doc2VecWraper
+import os
+import sys
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.model_utils import compute_similarity_cosinus
+from model.Doc2VecWraper import Doc2VecWraper
 
 class Doc2VecModel():
 

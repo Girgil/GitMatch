@@ -1,6 +1,12 @@
 import numpy as np
+import os
+import sys
 
-from src.model.model_utils import compute_similarity_cosinus
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.model_utils import compute_similarity_cosinus
 
 class Evaluation():
 

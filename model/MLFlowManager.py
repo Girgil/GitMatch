@@ -2,8 +2,15 @@ import os
 import mlflow
 import mlflow.pyfunc
 import pickle
+import os
+import sys
 from mlflow.tracking import MlflowClient
-from src.model.Doc2VecWraper import Doc2VecWraper
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.Doc2VecWraper import Doc2VecWraper
 #import Doc2VecWraper
 
 class MLFlowManager:
@@ -20,8 +27,8 @@ class MLFlowManager:
             with open(model_path, 'wb') as f:
                 pickle.dump(model, f)
                 
-            current_directory = os.getcwd()
-            Doc2VecWraper_path = os.path.join(current_directory, "src", "model")
+            Doc2VecWraper_path = os.getcwd()
+            #Doc2VecWraper_path = os.path.join(current_directory, "model")
             
             mlflow.pyfunc.log_model(
                 artifact_path=model_name,

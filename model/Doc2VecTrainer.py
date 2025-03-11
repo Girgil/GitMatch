@@ -2,11 +2,18 @@ import mlflow
 import pickle
 import pandas as pd
 import numpy as np
+import os
+import sys
 
 from mlflow.tracking import MlflowClient
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from src.model.MLFlowManager import MLFlowManager
-from src.model.Doc2VecWraper import Doc2VecWraper
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.MLFlowManager import MLFlowManager
+from model.Doc2VecWraper import Doc2VecWraper
 
 class Doc2VecTrainer():
 
@@ -147,14 +154,14 @@ class Doc2VecTrainer():
         mlflow_manager.register_model(
             model=self._doc2vec_readme,
             model_name='doc2vec_readme',
-            artifact_path='../../artifacts/doc2vec_readme',
+            artifact_path='../artifacts/doc2vec_readme',
             stage=self._staging,
         )
 
         mlflow_manager.register_model(
             model=self._doc2vec_others,
             model_name='doc2vec_others',
-            artifact_path='../../artifacts/doc2vec_others',
+            artifact_path='../artifacts/doc2vec_others',
             stage=self._staging,
         )
         '''
