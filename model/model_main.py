@@ -4,15 +4,20 @@ import pandas as pd
 import numpy as np
 import sys
 
-from src.model.Doc2VecModel import Doc2VecModel
-from src.model.Doc2VecTrainer import Doc2VecTrainer
-from src.model.Evaluation import Evaluation
 from mlflow.exceptions import MlflowException
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from src.database.DatabaseManager import DatabaseManager
 from pymongo import MongoClient
-from src.model.MLFlowManager import MLFlowManager
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.Doc2VecModel import Doc2VecModel
+from model.Doc2VecTrainer import Doc2VecTrainer
+from model.Evaluation import Evaluation
+from model.MLFlowManager import MLFlowManager
+from database.DatabaseManager import DatabaseManager
 
 def check_if_model_exists(model_uri):
     try:
@@ -36,7 +41,7 @@ def load_model(
     train_df, test_df = database_manager.get_train_test_split_features()
 
     if is_model_registered:
-        print("on charge le modèle")
+        print(f"on charge le modèle de {staging}")
         model = Doc2VecModel(
             staging=staging,
             mlflow_readme_model_uri=mlflow_model_readme_uri,
@@ -44,9 +49,9 @@ def load_model(
         )
     else:
         # Sinon on l'apprend
-        print("on doit apprendre le modèle")
+        print(f"on doit apprendre le modèle de {staging}")
         doc2vec_trainer = Doc2VecTrainer(staging=staging)
-        train_vectors, test_vectors = doc2vec_trainer.train(train_df.iloc[:2], test_df.iloc[:2])
+        train_vectors, test_vectors = doc2vec_trainer.train(train_df, test_df)
         database_manager.insert_repos_vectors_for_one_stage(train_vectors, staging)
         database_manager.insert_repos_vectors_for_one_stage(test_vectors, staging)
         model = Doc2VecModel(
@@ -73,7 +78,7 @@ def ensure_every_repo_is_vectorised(
         stg_vectors = []
         prd_vectors = []
         
-        for features in oriented_df_features_repos:
+        for features in oriented_df_repos_features_to_predict:
             stg_vectors.append(staging_model.predict(features))
             prd_vectors.append(production_model.predict(features))
 
@@ -137,7 +142,7 @@ def take_action_according_to_comparison_score(
 ):
     mlflow_manager = MLFlowManager()
     
-    if nb_better_stg_scores > 0:
+    if nb_better_stg_scores > 2:
         # Archive modèle en production
         print('Archivage production')
         mlflow_manager.archive_model_from_production("doc2vec_readme")
@@ -165,12 +170,11 @@ def take_action_according_to_comparison_score(
     doc2vec_trainer = Doc2VecTrainer(staging='staging')
     train_df, test_df = database_manager.get_train_test_split_features()
     train_vectors, test_vectors = (
-        doc2vec_trainer.train(train_df.iloc[:3], test_df.iloc[:3])
+        doc2vec_trainer.train(train_df, test_df)
     )
 
     print('Enregistrement des nouveaux vecteurs de staging')
     # Enregistre les nouveaux vecteurs en staging
-    '''
     database_manager.insert_repos_vectors_for_one_stage(
         train_vectors,
         'staging'
@@ -179,7 +183,9 @@ def take_action_according_to_comparison_score(
         test_vectors, 
         'staging'
     )
-    '''
+
+#def update_api():
+    
 
 def sequential_jobs(
     database_manager,
@@ -233,7 +239,11 @@ def main():
     mlflow_tracking_uri = os.path.join(current_directory, "artifacts", "mlruns")
     
     # Définir la variable d'environnement MLFLOW_TRACKING_URI
+    #  version en local
     os.environ["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
+
+    # Cas où on utilise le docker
+    #os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5000"
     
     client = MongoClient('localhost', 27017)
     database_manager = DatabaseManager(client['github'])
@@ -246,7 +256,7 @@ def main():
     
     production_mlflow_model_readme_uri = 'models:/doc2vec_readme@production'
     production_mlflow_model_others_uri = 'models:/doc2vec_others@production'
-    '''
+    
     sequential_jobs(
         database_manager=database_manager,        
         staging_mlflow_model_readme_uri=staging_mlflow_model_readme_uri,
@@ -254,11 +264,11 @@ def main():
         production_mlflow_model_readme_uri=production_mlflow_model_readme_uri,
         production_mlflow_model_others_uri=production_mlflow_model_others_uri,
     )
-    '''
+    
     # Planifier les fonctions pour s'exécuter tous les jours à 9h
     scheduler.add_job(
         sequential_jobs,
-        CronTrigger(hour=15, minute=19, second=10),
+        CronTrigger(hour=9, minute=0, second=0),
         args=[
             database_manager,
             staging_mlflow_model_readme_uri,
