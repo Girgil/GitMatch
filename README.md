@@ -41,7 +41,9 @@ Elle retourne deux liste de k urls basée sur les calculs de similarité entre l
 ## Prérequis
 Installer l'environnement requis avec pip install -r requirements depuis un environnement virtuel venv ou conda.
 
-Puis récupérer en-core-web-lg avec 'python -m spacy download en-core-web-lg'
+Puis récupérer en-core-web-lg avec:
+wget https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.0/en_core_web_lg-3.7.0.tar.gz
+pip install en_core_web_lg-3.7.0.tar.gz
 
 ## Pour dockeriser
 
