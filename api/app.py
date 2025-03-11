@@ -1,19 +1,27 @@
 import os
 import uvicorn
+import sys
 
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from src.model.Doc2VecModel import Doc2VecModel
-#from src.model.Doc2VecWraper import Doc2VecWraper
-from src.database.DatabaseManager import DatabaseManager
-from src.ingestion.requests_utils import get_repo, filter_features
-from src.ingestion.preprocessing import preprocess_df
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from model.Doc2VecModel import Doc2VecModel
+from database.DatabaseManager import DatabaseManager
+from ingestion.requests_utils import get_repo, filter_features
+from ingestion.preprocessing import preprocess_df
 
 current_directory = os.getcwd()
 mlflow_tracking_uri = os.path.join(current_directory, "artifacts", "mlruns")
+# Utilisation locale
 os.environ["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
 
+# cas où on dockerise le serveur mlflow
+#os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5000"
 production_mlflow_model_readme_uri = 'models:/doc2vec_readme@production'
 production_mlflow_model_others_uri = 'models:/doc2vec_others@production'
 
@@ -83,15 +91,16 @@ def recommend(owner_name: str, repo_name: str, k: int):
     others_urls = database_manager.get_url_list_from_id_list(ids_with_others)
     
     return {
-        "recommandations en utilisant le readme": readme_urls,
-        "recommandations en n'utilisant pas le readme": others_urls,
+        "readme": readme_urls,
+        "others": others_urls,
     }
 
 @app.post("/update")
 def update_api():
     production_model = Doc2VecModel('production', production_mlflow_model_readme_uri, production_mlflow_model_others_uri)
     df_vectors = database_manager.get_df_vectors()
+    return "Mise à jour réussie"
 
-#if __name__ == "__main__":
-#    uvicorn.run(app, host="0.0.0.0", port=8000)
-print("🚀 FastAPI prêt sur http://localhost:8000")
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("🚀 FastAPI prêt sur http://localhost:8000")
