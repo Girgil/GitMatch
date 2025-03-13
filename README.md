@@ -55,6 +55,7 @@ L'api prend en entrée le nom complet d'un répertoire séparé en deux champs `
 Elle retourne deux liste de k urls basée sur les calculs de similarité entre la vectorisation de ce répertoire les vecteurs des répertoires de la base.
 
 ## Prérequis
+Créer un environnement dans lequel il est nécessaire d'avoir une version de pip ainsi que la version 3.9 de python. Cette version est nécessaire pour assurer la compatibilité avec nos requirements.   
 Installer l'environnement requis avec <b>pip install -r requirements</b> depuis un environnement virtuel venv ou conda.
 
 Puis récupérer et installer en-core-web-lg avec:
